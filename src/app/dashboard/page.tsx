@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 // N8n Webform details (Webhook POST Endpoint)
 const N8N_WEBHOOK_URL = "https://saul444.app.n8n.cloud/webhook/e8b6ea01-f90f-4801-a34c-d2a68dc3b4b5"; 
@@ -41,7 +42,7 @@ export default function DashboardPage() {
       if (user) {
         const { data: profile } = await supabase.from('profiles').select('credits').eq('id', user.id).single();
         if (profile && profile.credits <= 0) {
-          alert("Yetersiz Kredi! Lütfen paketinizi yükseltin.");
+          toast.error("Yetersiz Kredi! Lütfen paketinizi yükseltin.");
           router.push('/pricing');
           setLoading(false);
           return;
@@ -52,7 +53,9 @@ export default function DashboardPage() {
       }
 
       // Show immediate feedback to user
-      alert("Ajanımız içeriklerinizi hazırlıyor. Bu işlem 2-5 dakika sürebilir, sonuçlar paneline düşecek.");
+      toast.success("Ajanımız içeriklerinizi hazırlıyor. Bu işlem 2-5 dakika sürebilir, sonuçlar paneline düşecek.", {
+        duration: 5000,
+      });
 
       let finalImageUrl = imagePreview; // Default to mockup
 
@@ -107,7 +110,7 @@ export default function DashboardPage() {
 
     } catch (err) {
       console.error(err);
-      alert("Bir hata oluştu. Lütfen tekrar deneyin.");
+      toast.error("Bir hata oluştu. Lütfen tekrar deneyin.");
     } finally {
       setLoading(false);
     }
@@ -160,7 +163,7 @@ export default function DashboardPage() {
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
         </button>
         <span className="text-[17px] font-bold text-white tracking-wide">İçerik Oluşturucu</span>
-        <button className="text-white hover:bg-white/10 p-2 -mr-2 rounded-full">
+        <button onClick={() => toast.info('Bu özellik yakında eklenecek!')} className="text-white hover:bg-white/10 p-2 -mr-2 rounded-full">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
         </button>
       </div>

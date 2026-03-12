@@ -4,6 +4,7 @@ import "./globals.css";
 import BottomNav from "../components/BottomNav";
 import PushNotification from "../components/PushNotification";
 import InstallPWA from "../components/InstallPWA";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,6 +28,7 @@ export default function RootLayout({
       <body className={`${inter.className} bg-background text-foreground antialiased`}>
         {/* Mobile App Container */}
         <div className="max-w-md mx-auto min-h-screen relative shadow-2xl bg-[#0d0b14] overflow-hidden pb-20">
+          <Toaster position="top-center" richColors expand={true} />
           <PushNotification />
           <InstallPWA />
           {children}

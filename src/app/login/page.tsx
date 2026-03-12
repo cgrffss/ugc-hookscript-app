@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -24,7 +25,10 @@ export default function LoginPage() {
       });
 
       if (error) {
+        toast.error(`Giriş başarısız: ${error.message}`);
         console.warn("Supabase auth error, bypassing for template flow:", error.message);
+      } else {
+        toast.success("Başarıyla giriş yapıldı!");
       }
       // Regardless of error, push to dashboard for MVP testing because no users are registered
       router.push('/dashboard');
@@ -154,7 +158,7 @@ export default function LoginPage() {
 
       <div className="mt-auto w-full text-center">
         <p className="text-[#a19daf] text-[14px]">
-          Hesabınız yok mu? <Link href="#" className="text-[#7f0df2] font-semibold">Kaydolun</Link>
+          Hesabınız yok mu? <button onClick={() => toast.info('Kayıt olma özelliği yakında aktif olacak!')} className="text-[#7f0df2] font-semibold">Kaydolun</button>
         </p>
       </div>
 

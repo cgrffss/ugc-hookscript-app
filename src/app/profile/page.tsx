@@ -1,7 +1,29 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 export default function ProfilePage() {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      toast.success('Başarıyla çıkış yapıldı');
+      router.push('/login');
+    } catch (err: any) {
+      toast.error('Çıkış yapılırken bir hata oluştu');
+      console.error(err);
+    }
+  };
+
+  const showComingSoon = () => {
+    toast.info('Bu özellik yakında eklenecek!');
+  };
   return (
     <div className="w-full min-h-[95vh] flex flex-col px-5 pt-12 pb-32 bg-background relative overflow-y-auto">
       
@@ -57,19 +79,19 @@ export default function ProfilePage() {
 
          {/* Ayarlar */}
          <div className="w-full bg-[#151221] p-5 rounded-[20px] border border-[#261f3d] flex flex-col gap-4">
-            <button className="flex items-center justify-between group">
+            <button onClick={showComingSoon} className="flex items-center justify-between group w-full">
                <div className="flex items-center gap-3">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a19daf" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:text-white transition-colors"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
                   <span className="text-[#e4e4e9] font-medium text-[15px] group-hover:text-white transition-colors">Ayarlar</span>
                </div>
             </button>
             <div className="h-px w-full bg-[#261f3d]" />
-            <Link href="/" className="flex items-center justify-between group">
+            <button onClick={handleLogout} className="flex items-center justify-between group w-full text-left">
                <div className="flex items-center gap-3">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
                   <span className="text-[#ef4444] font-medium text-[15px]">Çıkış Yap</span>
                </div>
-            </Link>
+            </button>
          </div>
       </div>
       
