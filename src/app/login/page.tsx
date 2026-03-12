@@ -43,14 +43,23 @@ export default function LoginPage() {
 
   const handleOAuthLogin = async (provider: 'google' | 'apple') => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      });
+      if (error) {
+        toast.error(`OAuth hatası: ${error.message}`);
+        console.error("OAuth error:", error);
       }
-    });
-    if (error) console.error("OAuth error:", error);
-    setLoading(false);
+    } catch (err) {
+      console.error(err);
+      toast.error("Giriş başlatılırken bir hata oluştu");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
