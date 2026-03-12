@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   title: "HookScript AI - UGC Content Creator",
   description: "Generate viral UGC videos using AI instantly",
   manifest: "/manifest.json",
+};
+
+export const viewport = {
   themeColor: "#0d0b14",
 };
 
