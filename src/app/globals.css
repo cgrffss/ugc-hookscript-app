@@ -1,26 +1,109 @@
 @import "tailwindcss";
 
+@theme {
+  --color-background: #0d0b14;
+  --color-foreground: #ededed;
+  
+  --color-primary: #7f0df2;
+  --color-primary-hover: #9b39fc;
+  --color-secondary: #eead2b;
+  
+  --color-surface: #141121;
+  --color-surface-hover: #1e1a30;
+  --color-border: rgba(255, 255, 255, 0.08);
+  
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #0d0b14;
+  --foreground: #ededed;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Form inputs reset */
+input, textarea {
+  color: #fff;
+}
+input::placeholder, textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Glassmorphism utilities */
+.glass {
+  background: rgba(20, 17, 33, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-card {
+  background: rgba(25, 22, 40, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-primary {
+  background: linear-gradient(135deg, #9b39fc 0%, #d294ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glowing Button */
+.btn-neon {
+  background-color: var(--color-primary);
+  color: white;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 0 20px rgba(127, 13, 242, 0.4);
+}
+.btn-neon:hover {
+  background-color: var(--color-primary-hover);
+  box-shadow: 0 0 30px rgba(127, 13, 242, 0.6);
+}
+.btn-neon:active {
+  transform: scale(0.97);
+}
+
+/* Subdued secondary button */
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  transition: all 0.2s ease;
+}
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.btn-outline:active {
+  transform: scale(0.97);
+}
+
+/* Mobile-first constraints removed as utilities are used directly */
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
