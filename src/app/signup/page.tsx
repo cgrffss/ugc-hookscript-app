@@ -6,36 +6,41 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Fallback direct bypass for local testing
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
     try {
-      // In a real flow, use supabase.auth.signInWithPassword
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error, data } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        }
       });
 
       if (error) {
-        toast.error(`Giriş başarısız: ${error.message}`);
-        console.warn("Supabase auth error, bypassing for template flow:", error.message);
+        toast.error(`Kayıt başarısız: ${error.message}`);
       } else {
-        toast.success("Başarıyla giriş yapıldı!");
+        toast.success("Hesabınız oluşturuldu! Giriş yapılıyor...");
+        // If Supabase is configured for auto-confirm, data.session will be present
+        if (data.session) {
+          router.push('/dashboard');
+        } else {
+          // If email confirmation is required, provide instructions but for MVP we might redirect anyway or show a specialized message
+          toast.info("Lütfen e-posta adresinizi doğrulayın.");
+          router.push('/dashboard'); // Bypassing for MVP speed if session isn't immediate
+        }
       }
-      // Regardless of error, push to dashboard for MVP testing because no users are registered
-      router.push('/dashboard');
-      
     } catch (err) {
       console.error(err);
-      router.push('/dashboard');
+      toast.error("Bir hata oluştu.");
     } finally {
       setLoading(false);
     }
@@ -52,7 +57,6 @@ export default function LoginPage() {
       });
       if (error) {
         toast.error(`OAuth hatası: ${error.message}`);
-        console.error("OAuth error:", error);
       }
     } catch (err) {
       console.error(err);
@@ -64,22 +68,16 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center px-6 pt-12 pb-8 relative">
-      
-      {/* Header back button (mock) */}
       <div className="w-full flex items-center justify-between mb-8">
         <button className="text-white hover:bg-white/10 p-2 rounded-full transition-colors" onClick={() => router.back()}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
         </button>
-        <h1 className="text-lg font-bold text-white tracking-wide">Giriş Yap</h1>
-        <div className="w-10"></div> {/* Spacer for centering */}
+        <h1 className="text-lg font-bold text-white tracking-wide">Kaydol</h1>
+        <div className="w-10"></div>
       </div>
 
-      {/* The glowing circle header area */}
       <div className="w-full max-w-sm aspect-[1.8/1] bg-[#08060c] rounded-[32px] border border-[#1f1a2e] flex items-center justify-center relative shadow-[0_20px_60px_-15px_rgba(12,223,205,0.15)] mb-10 overflow-hidden">
-        {/* Glow behind the circle */}
         <div className="absolute w-[180px] h-[180px] bg-[#0cdfcd]/30 blur-[40px] rounded-full"></div>
-        
-        {/* The neon circles */}
         <div className="relative w-32 h-32 rounded-full border-[3px] border-[#0cdfcd] shadow-[0_0_20px_#0cdfcd,inset_0_0_20px_#0cdfcd] flex items-center justify-center">
           <div className="w-28 h-28 rounded-full border-[2px] border-[#0cdfcd]/60 -ml-2 mb-1"></div>
           <div className="absolute w-26 h-26 rounded-full border border-[#0cdfcd]/40 ml-2 mt-2"></div>
@@ -87,12 +85,11 @@ export default function LoginPage() {
       </div>
 
       <div className="w-full text-center mb-8">
-        <h2 className="text-[28px] font-bold text-white mb-2">Giriş Yap</h2>
-        <p className="text-[#a19daf] text-[15px]">UGC dünyasına adım atın</p>
+        <h2 className="text-[28px] font-bold text-white mb-2">Hesap Oluştur</h2>
+        <p className="text-[#a19daf] text-[15px]">UGC dünyasına bugün katılın</p>
       </div>
 
-      <form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
-        
+      <form onSubmit={handleSignup} className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
           <label className="text-[13px] font-medium text-[#e4e4e9] px-1">E-posta</label>
           <div className="w-full bg-[#151221] border border-[#261f3d] rounded-2xl overflow-hidden focus-within:border-[#7f0df2] transition-colors">
@@ -115,32 +112,26 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-transparent px-5 py-4 text-white text-[15px] focus:outline-none"
-              placeholder="Şifrenizi girin"
+              placeholder="Şifrenizi oluşturun"
               required
+              minLength={6}
             />
           </div>
-        </div>
-
-        <div className="w-full flex justify-end mt-1 mb-2">
-          <button type="button" className="text-[#7f0df2] text-[13px] font-semibold hover:text-[#9b39fc] transition-colors">
-            Şifremi Unuttum
-          </button>
         </div>
 
         <button 
           type="submit" 
           disabled={loading}
-          className="w-full py-[18px] rounded-2xl bg-[#7f0df2] text-white font-bold text-[16px] shadow-[0_8px_25px_-5px_rgba(127,13,242,0.5)] active:scale-[0.98] transition-all flex justify-center items-center"
+          className="w-full mt-4 py-[18px] rounded-2xl bg-[#7f0df2] text-white font-bold text-[16px] shadow-[0_8px_25px_-5px_rgba(127,13,242,0.5)] active:scale-[0.98] transition-all flex justify-center items-center"
         >
           {loading ? (
              <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
           ) : (
-            'Giriş Yap'
+            'Kaydol'
           )}
         </button>
       </form>
       
-      {/* OAuth Separator */}
       <div className="w-full relative flex items-center justify-center my-8">
         <div className="absolute w-full h-[1px] bg-gradient-to-r from-transparent via-[#261f3d] to-transparent"></div>
         <span className="bg-[#0d0b14] px-4 text-[12px] text-[#6d687c] font-medium relative z-10">veya şununla devam et</span>
@@ -167,10 +158,9 @@ export default function LoginPage() {
 
       <div className="mt-auto w-full text-center">
         <p className="text-[#a19daf] text-[14px]">
-          Hesabınız yok mu? <Link href="/signup" className="text-[#7f0df2] font-semibold">Kaydolun</Link>
+          Zaten hesabınız var mı? <Link href="/login" className="text-[#7f0df2] font-semibold">Giriş Yapın</Link>
         </p>
       </div>
-
     </div>
   );
 }
