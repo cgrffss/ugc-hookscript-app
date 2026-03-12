@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 
 export default function HomePage() {
   const [generations, setGenerations] = useState<any[]>([]);
@@ -144,6 +145,35 @@ export default function HomePage() {
                           <div className="absolute top-2 right-2 bg-[#0cdfcd]/20 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded-full border border-[#0cdfcd]/30 flex items-center gap-1.5 shadow-lg">
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0cdfcd" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                             Hazır
+                          </div>
+                      )}
+                      
+                      {/* Action Overlay for Completed */}
+                      {gen.status === 'completed' && (
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 z-10">
+                              <button 
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  if (gen.video_url) window.open(gen.video_url, '_blank');
+                                  else toast.error('Video linki bulunamadı.');
+                                }}
+                                className="w-10 h-10 rounded-full bg-[#7f0df2] border border-[#9b39fc] flex items-center justify-center text-white shadow-xl hover:scale-110 active:scale-90 transition-all"
+                                title="İndir"
+                              >
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                              </button>
+                              <button 
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  toast.success('Paylaşım menüsü açılıyor...');
+                                }}
+                                className="w-10 h-10 rounded-full bg-[#0cdfcd] border border-[#3cf3e3] flex items-center justify-center text-white shadow-xl hover:scale-110 active:scale-90 transition-all"
+                                title="Paylaş"
+                              >
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+                              </button>
                           </div>
                       )}
                   </div>

@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function AnalyticsPage() {
   const [stats, setStats] = useState({
@@ -134,6 +136,32 @@ export default function AnalyticsPage() {
             <p className="text-[#a19daf] text-[12px] font-medium mb-1">Kalan Kredi</p>
             <p className="text-white text-[24px] font-bold">{stats.credits}</p>
          </motion.div>
+      </motion.div>
+      
+      {/* Upgrade CTA */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.6 }}
+        className="z-10 mt-8"
+      >
+        <Link href="/pricing" className="w-full bg-gradient-to-r from-[#7f0df2]/20 to-[#0cdfcd]/20 p-5 rounded-[24px] border border-[#7f0df2]/30 flex items-center justify-between hover:border-[#7f0df2]/60 transition-colors shadow-[0_0_20px_rgba(127,13,242,0.1)] group">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-[#7f0df2] flex items-center justify-center shadow-[0_0_15px_rgba(127,13,242,0.5)]">
+               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <div>
+              <span className="text-white font-bold text-[16px] block">Premium&apos;a Geç</span>
+              <span className="text-[#a19daf] text-[12px]">Daha fazla kredi ve 4K video üretimi</span>
+            </div>
+          </div>
+          <motion.div
+            animate={{ x: [0, 5, 0] }}
+            transition={{ repeat: Infinity, duration: 1.5 }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </motion.div>
+        </Link>
       </motion.div>
       
     </motion.div>

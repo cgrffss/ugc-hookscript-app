@@ -3,7 +3,7 @@
   "short_name": "HookScript",
   "description": "Generate viral UGC videos using AI instantly",
   "start_url": "/",
-  "display": "standalone",
+  "display": "minimal-ui",
   "background_color": "#0d0b14",
   "theme_color": "#7f0df2",
   "icons": [
