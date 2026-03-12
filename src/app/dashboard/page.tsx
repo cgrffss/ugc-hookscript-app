@@ -72,8 +72,22 @@ export default function DashboardPage() {
         }
       }
 
-      // 2. Fire to N8n (Fire and forget, no await to prevent 504 Timeout)
+      // 1.5 Create Record in Supabase to get an ID for n8n to reference back
+      const { data: genData } = await supabase
+        .from('generations')
+        .insert([{
+          user_id: user?.id,
+          product_name: productName,
+          prompt: prompt,
+          input_image: finalImageUrl,
+          status: 'processing'
+        }])
+        .select()
+        .single();
+
+      // 2. Fire to N8n (Fire and forget, with record_id)
       const payload = {
+        record_id: genData?.id,
         image_url: finalImageUrl,
         prompt: prompt,
         product_name: productName
