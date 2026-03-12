@@ -29,14 +29,9 @@ export default function SignupPage() {
         toast.error(`Kayıt başarısız: ${error.message}`);
       } else {
         toast.success("Hesabınız oluşturuldu! Giriş yapılıyor...");
-        // If Supabase is configured for auto-confirm, data.session will be present
-        if (data.session) {
-          router.push('/dashboard');
-        } else {
-          // If email confirmation is required, provide instructions but for MVP we might redirect anyway or show a specialized message
-          toast.info("Lütfen e-posta adresinizi doğrulayın.");
-          router.push('/dashboard'); // Bypassing for MVP speed if session isn't immediate
-        }
+        // Regardless of session presence (due to confirmation or auto-login), push and refresh
+        router.push('/dashboard');
+        router.refresh();
       }
     } catch (err) {
       console.error(err);

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // N8n Webform details (Webhook POST Endpoint)
 const N8N_WEBHOOK_URL = "https://saul444.app.n8n.cloud/webhook/e8b6ea01-f90f-4801-a34c-d2a68dc3b4b5"; 
@@ -34,23 +35,10 @@ export default function DashboardPage() {
     setLoading(true);
 
     try {
-      // 0. Mock Credit Check
-      // Normally: const { data: profile } = await supabase.from('profiles').select('credits').eq('id', user.id).single();
+      // 0. Database will handle credit check via BEFORE INSERT trigger.
+      // If the user has 0 credits, the insert will fail and throw an error.
       const userRes = await supabase.auth.getUser();
       const user = userRes.data.user;
-      
-      if (user) {
-        const { data: profile } = await supabase.from('profiles').select('credits').eq('id', user.id).single();
-        if (profile && profile.credits <= 0) {
-          toast.error("Yetersiz Kredi! Lütfen paketinizi yükseltin.");
-          router.push('/pricing');
-          setLoading(false);
-          return;
-        }
-        if (profile && profile.credits > 0) {
-          await supabase.from('profiles').update({ credits: profile.credits - 1 }).eq('id', user.id);
-        }
-      }
 
       // Show immediate feedback to user
       toast.success("Ajanımız içeriklerinizi hazırlıyor. Bu işlem 2-5 dakika sürebilir, sonuçlar paneline düşecek.", {
@@ -76,7 +64,7 @@ export default function DashboardPage() {
       }
 
       // 1.5 Create Record in Supabase to get an ID for n8n to reference back
-      const { data: genData } = await supabase
+      const { data: genData, error: insertError } = await supabase
         .from('generations')
         .insert([{
           user_id: user?.id,
@@ -87,6 +75,15 @@ export default function DashboardPage() {
         }])
         .select()
         .single();
+
+      if (insertError) {
+        if (insertError.message.includes('Yetersiz kredi')) {
+          toast.error("Yetersiz Kredi! Lütfen paketinizi yükseltin.");
+          router.push('/pricing');
+          return;
+        }
+        throw insertError;
+      }
 
       // 2. Fire to N8n (Fire and forget, with record_id)
       const payload = {
@@ -169,17 +166,26 @@ export default function DashboardPage() {
       </div>
 
       {/* Header Info */}
-      <div className="mb-8">
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8"
+      >
         <h1 className="text-[32px] font-extrabold text-white leading-tight mb-2 tracking-tight">
           Nasıl bir içerik<br />istiyorsun?
         </h1>
         <p className="text-[#a19daf] text-[14px]">
           Yapay zeka ile ürününü profesyonel bir sahneye taşı.
         </p>
-      </div>
+      </motion.div>
 
       {/* Section 1: Uploaded Product */}
-      <div className="mb-8">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.1 }}
+        className="mb-8"
+      >
         <div className="flex items-center gap-3 mb-4">
           <div className="w-6 h-6 rounded-full bg-[#251b3a] text-[#7f0df2] flex items-center justify-center text-[12px] font-bold border border-[#7f0df2]/30">
             1
@@ -214,10 +220,15 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Section 2: Prompt */}
-      <div className="mb-6">
+      <motion.div 
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.2 }}
+        className="mb-6"
+      >
         <div className="flex items-center gap-3 mb-4">
           <div className="w-6 h-6 rounded-full bg-[#251b3a] text-[#7f0df2] flex items-center justify-center text-[12px] font-bold border border-[#7f0df2]/30">
             2
@@ -249,16 +260,21 @@ export default function DashboardPage() {
             )}
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Tags */}
-      <div className="flex flex-wrap gap-2.5 mb-10 w-full overflow-x-auto scrollbar-hide py-1">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        className="flex flex-wrap gap-2.5 mb-10 w-full overflow-x-auto scrollbar-hide py-1"
+      >
         {tags.map(t => (
           <button key={t} className="bg-[#151221] border border-[#261f3d] rounded-full px-4 py-2 text-[#a19daf] text-[13px] font-medium whitespace-nowrap hover:border-[#7f0df2]/50 hover:text-white transition-colors">
             {t}
           </button>
         ))}
-      </div>
+      </motion.div>
 
       {/* Submit Button */}
       <button 

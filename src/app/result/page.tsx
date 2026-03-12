@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function ResultContent() {
   const router = useRouter();
@@ -35,6 +36,24 @@ function ResultContent() {
     }
 
     fetchGeneration();
+
+    // 2. Realtime subscription for this specific record
+    if (!id) return;
+    const channel = supabase
+      .channel(`generation-${id}`)
+      .on('postgres_changes', { 
+        event: 'UPDATE', 
+        schema: 'public', 
+        table: 'generations',
+        filter: `id=eq.${id}`
+      }, (payload) => {
+        setGeneration(payload.new);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [id]);
 
   if (loading) {
@@ -87,29 +106,46 @@ function ResultContent() {
       <div className="w-full max-w-[340px] aspect-[4/5] bg-[#151221] rounded-[24px] overflow-hidden border border-[#261f3d] relative mb-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]">
         
         {/* The Image / Video */}
-        {generation.status === 'completed' && generation.video_url ? (
-          <video 
-            src={generation.video_url} 
-            className="w-full h-full object-cover"
-            controls
-            autoPlay
-            loop
-          />
-        ) : (
-          <img 
-            src={displayImageUrl} 
-            alt="Generated Result" 
-            className={`w-full h-full object-cover ${generation.status === 'processing' ? 'opacity-50 blur-[2px]' : ''}`}
-          />
-        )}
+        <AnimatePresence mode="wait">
+          {generation.status === 'completed' && generation.video_url ? (
+            <motion.video 
+              key="video"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              src={generation.video_url} 
+              className="w-full h-full object-cover"
+              controls
+              autoPlay
+              loop
+            />
+          ) : (
+            <motion.img 
+              key="image"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              src={displayImageUrl} 
+              alt="Generated Result" 
+              className={`w-full h-full object-cover ${generation.status === 'processing' ? 'opacity-50 blur-[2px]' : ''}`}
+            />
+          )}
+        </AnimatePresence>
 
         {/* Status Overlay for Processing */}
-        {generation.status === 'processing' && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
-            <div className="w-12 h-12 border-4 border-[#7f0df2]/20 border-t-[#7f0df2] rounded-full animate-spin mb-4"></div>
-            <span className="text-white font-bold bg-black/40 px-4 py-2 rounded-full backdrop-blur-sm">İşleniyor...</span>
-          </div>
-        )}
+        <AnimatePresence>
+          {generation.status === 'processing' && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 flex flex-col items-center justify-center z-20"
+            >
+              <div className="w-12 h-12 border-4 border-[#7f0df2]/20 border-t-[#7f0df2] rounded-full animate-spin mb-4"></div>
+              <span className="text-white font-bold bg-black/40 px-4 py-2 rounded-full backdrop-blur-sm">İşleniyor...</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Bottom Inner Gradient overlay */}
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-4 pointer-events-none">

@@ -28,6 +28,24 @@ export default function HomePage() {
     }
     
     fetchGenerations();
+
+    // 2. Realtime subscription for status updates
+    const channel = supabase
+      .channel('public:generations')
+      .on('postgres_changes', { 
+        event: 'UPDATE', 
+        schema: 'public', 
+        table: 'generations' 
+      }, (payload) => {
+        setGenerations(prev => 
+          prev.map(gen => gen.id === payload.new.id ? { ...gen, ...payload.new } : gen)
+        );
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   if (loading) {
@@ -104,7 +122,10 @@ export default function HomePage() {
               }}
             >
               <Link href={`/result?id=${gen.id}`} className="block">
-                <div className="bg-[#151221] p-3 rounded-[20px] border border-[#261f3d] flex flex-col relative overflow-hidden group hover:border-[#7f0df2]/50 transition-colors">
+                <motion.div 
+                  layoutId={gen.id}
+                  className="bg-[#151221] p-3 rounded-[20px] border border-[#261f3d] flex flex-col relative overflow-hidden group hover:border-[#7f0df2]/50 hover:shadow-[0_0_20px_rgba(127,13,242,0.15)] transition-all duration-300"
+                >
                   <div className="w-full aspect-[4/5] bg-[#110e1b] rounded-[14px] mb-3 relative overflow-hidden border border-white/5">
                       {gen.thumbnail_url || gen.input_image ? (
                           <img src={gen.thumbnail_url || gen.input_image} alt="Video Thumbnail" className="w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-500" />
@@ -128,7 +149,7 @@ export default function HomePage() {
                   </div>
                   <h3 className="text-white font-bold text-[14px] truncate mb-1 group-hover:text-[#7f0df2] transition-colors">{gen.product_name}</h3>
                   <p className="text-[#504a62] text-[11px] truncate">{new Date(gen.created_at).toLocaleDateString()}</p>
-                </div>
+                </motion.div>
               </Link>
             </motion.div>
           ))}

@@ -30,8 +30,10 @@ export default function LoginPage() {
       } else {
         toast.success("Başarıyla giriş yapıldı!");
       }
-      // Regardless of error, push to dashboard for MVP testing because no users are registered
+      
+      // Force navigation and refresh to ensure session is picked up
       router.push('/dashboard');
+      router.refresh();
       
     } catch (err) {
       console.error(err);
