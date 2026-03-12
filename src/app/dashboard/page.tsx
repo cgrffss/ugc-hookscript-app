@@ -7,9 +7,7 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // N8n Webform details (Webhook POST Endpoint)
-const N8N_WEBHOOK_URL = "https://saul444.app.n8n.cloud/webhook/e8b6ea01-f90f-4801-a34c-d2a68dc3b4b5"; 
-// Note: form urls end in `/form/id`, but for API POSTs it's usually `/webhook/id`.
-// If it only accepts form submissions, we may need to use FormData or just send JSON to webhook.
+const N8N_WEBHOOK_URL = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL || ""; 
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -85,12 +83,20 @@ export default function DashboardPage() {
         throw insertError;
       }
 
-      // 2. Fire to N8n (Fire and forget, with record_id)
+      // 2. Fetch Brand Kit (Logo) for watermarking
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('brand_logo_url')
+        .eq('id', user?.id)
+        .single();
+
+      // 3. Fire to N8n (Fire and forget, with record_id)
       const payload = {
         record_id: genData?.id,
         image_url: finalImageUrl,
         prompt: prompt,
-        product_name: productName
+        product_name: productName,
+        brand_logo_url: profile?.brand_logo_url || null
       };
 
       fetch(N8N_WEBHOOK_URL, {
